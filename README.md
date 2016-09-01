@@ -21,7 +21,7 @@ This plugin has no requirement beside sublime text 2. Sublime text 3 is currentl
 
 ## Install
 ### Manual installation
-Copy the `PythonPEP8Indent` directory into your sublime text package directory.
+Copy this directory into your sublime text package directory.
 
 If you use the vintage mode, see "Settings".
 

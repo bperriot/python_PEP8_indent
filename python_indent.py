@@ -23,14 +23,17 @@ except ImportError:
     class FakeSublime(object):
         def Region(self, a, b):
             return tuple((a, b))
+        def load_settings(self, *args, **kwargs):
+            return None
     sublime = FakeSublime()
     sublime_plugin = type('sublime_plugin', (), {'EventListener': object})
     sublime_plugin.TextCommand = object
+    MAX_LINE_LOOKUP_COUNT = 1000
 
-
-# maximum number of previous lines to lookup
-settings = sublime.load_settings('python_indent.sublime-settings')
-MAX_LINE_LOOKUP_COUNT = settings.get("max_line_lookup_count", 1000)
+else:
+    # maximum number of previous lines to lookup
+    settings = sublime.load_settings('python_indent.sublime-settings')
+    MAX_LINE_LOOKUP_COUNT = settings.get("max_line_lookup_count", 1000)
 
 
 ## new line indent
@@ -351,8 +354,7 @@ def previous_keyword_lookup(view, cursor, keywords, ignore):
 indent_regex = re.compile(r'^\s*')
 
 
-def change_indent(str, new_indent):
-    return indent_regex.sub(' '*new_indent, str, count=1)
+
 
 
 else_pattern = re.compile(r'^\s*else\s*:')
@@ -364,6 +366,9 @@ elif_pattern = re.compile(r'^\s*elif\b')
 class PythonDeindenter(sublime_plugin.EventListener):
 
     """Auto-deindentation on appropriated keywords."""
+
+    def change_indent(self, str, new_indent):
+        return indent_regex.sub(' '*new_indent, str, count=1)
 
     def on_modified(self, view):
         cmd, param, count = view.command_history(0, False)
@@ -405,7 +410,7 @@ class PythonDeindenter(sublime_plugin.EventListener):
                 if indent is not -1:
                     edit = view.begin_edit()
                     try:
-                        new_line = change_indent(str_line, indent)
+                        new_line = self.change_indent(str_line, indent)
                         view.replace(edit, view.line(sel), new_line)
                     finally:
                         view.end_edit(edit)

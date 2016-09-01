@@ -8,11 +8,12 @@
 """
 
 import pytest
-from mock import patch
+from mock import patch, Mock
 
-from PythonPEP8Indent.python_indent import get_new_line_indent
-from PythonPEP8Indent.python_indent import line_filter
-from PythonPEP8Indent.python_indent import PythonDeindenter
+import python_indent
+from python_indent import get_new_line_indent
+from python_indent import line_filter
+from python_indent import PythonDeindenter
 
 
 class FakeRegion(object):
@@ -115,8 +116,14 @@ def test_deindent_right_indent():
         view = FakeView(block)
         view.commands = ["insert", {"characters": block[-1]}, 1]
 
-        with patch('PythonPEP8Indent.python_indent.change_indent') as mock:
-            PythonDeindenter().on_modified(view)
+        #deindenter = PythonDeindenter()
+        #mock = Mock()
+        #deindenter.change_indent = mock
+    
+        #with patch('__main__.python_indent.change_indent') as mock:
+        with patch.object(PythonDeindenter, 'change_indent', return_value=None) as mock:
+            deindenter = PythonDeindenter()
+            deindenter.on_modified(view)
 
         mock.assert_called_once_with(block.split('\n')[-1], indent)
 
@@ -215,7 +222,7 @@ def test_deindent_right_align():
         view = FakeView(block)
         view.commands = ["insert", {"characters": block[-1]}, 1]
 
-        with patch('PythonPEP8Indent.python_indent.change_indent') as mock:
+        with patch.object(PythonDeindenter, 'change_indent', return_value=None) as mock:
             PythonDeindenter().on_modified(view)
 
         mock.assert_called_once_with(block.split('\n')[-1], indent)
@@ -239,7 +246,7 @@ def test_deindent_start_block_pattern():
         view = FakeView(block)
         view.commands = ["insert", {"characters": block[-1]}, 1]
 
-        with patch('PythonPEP8Indent.python_indent.change_indent') as mock:
+        with patch.object(PythonDeindenter, 'change_indent', return_value=None) as mock:
             PythonDeindenter().on_modified(view)
 
         assert not mock.called
@@ -256,7 +263,7 @@ def test_deindent_wrong_command():
         view = FakeView(block)
         view.commands = ["replace", {"characters": block[-1]}, 1]
 
-        with patch('PythonPEP8Indent.python_indent.change_indent') as mock:
+        with patch.object(PythonDeindenter, 'change_indent', return_value=None) as mock:
             PythonDeindenter().on_modified(view)
 
         assert not mock.called
@@ -270,7 +277,7 @@ def test_deindent_no_matching_block():
         view = FakeView(block)
         view.commands = ["insert", {"characters": block[-1]}, 1]
 
-        with patch('PythonPEP8Indent.python_indent.change_indent') as mock:
+        with patch.object(PythonDeindenter, 'change_indent', return_value=None) as mock:
             PythonDeindenter().on_modified(view)
 
         assert not mock.called
@@ -315,7 +322,7 @@ def test_deindent_wrong_param():
         view = FakeView(block)
         view.commands = ["insert", {"characters": block[-1]}, 1]
 
-        with patch('PythonPEP8Indent.python_indent.change_indent') as mock:
+        with patch.object(PythonDeindenter, 'change_indent', return_value=None) as mock:
             PythonDeindenter().on_modified(view)
 
         assert not mock.called
